@@ -12,8 +12,8 @@
 
   <!-- Badges -->
   <p align="center">
-    <a href="https://github.com/your-username/WorkSmart/releases">
-      <img src="https://img.shields.io/github/v/release/your-username/WorkSmart?color=d46617&label=APK%20Release&style=for-the-badge" alt="Release" />
+    <a href="https://github.com/rellcodee/WorkSmart/releases">
+      <img src="https://img.shields.io/github/v/release/rellcodee/WorkSmart?color=d46617&label=APK%20Release&style=for-the-badge" alt="Release" />
     </a>
     <img src="https://img.shields.io/badge/Expo-SDK%2053-23272E?style=for-the-badge&logo=expo&logoColor=white" alt="Expo SDK 53" />
     <img src="https://img.shields.io/badge/React_Native-0.76+-61DAFB?style=for-the-badge&logo=react&logoColor=black" alt="React Native" />
