@@ -31,14 +31,14 @@ export default function TaskTrackerLayout() {
         name="daily"
         options={{
           title: 'Daily Tracker',
-          headerTitle: 'Rutinitas Harian',
+          headerTitle: 'Daily Tracker',
         }}
       />
       <Stack.Screen
         name="weekly"
         options={{
           title: 'Weekly Tracker',
-          headerTitle: 'Tugas Mingguan',
+          headerTitle: 'Weekly Tracker',
         }}
       />
     </Stack>

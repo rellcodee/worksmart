@@ -1,28 +1,28 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import React, { useEffect, useState } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 import { theme } from '../../constants/theme';
 
 const QUOTES = [
   {
-    text: "Lebih baik merasakan susahnya belajar, daripada merasakan kebodohan.",
-    author: "Imam Syafi'i"
+    text: "It's better to feel the hardship of learning than to endure the pain of ignorance.",
+    author: "Imam Shafi'i"
   },
   {
-    text: "Hari ini adalah milikmu, jadikan hari ini langkah terbaik menuju impianmu.",
-    author: "Peribahasa"
+    text: "It's not that I'm so smart, it's just that I stay with problems longer.",
+    author: "Albert Einstein"
   },
   {
-    text: "Fokuslah pada proses, bukan hanya pada hasil akhir.",
-    author: "Anonim"
+    text: "Learning never exhausts the mind.",
+    author: "Leonardo da Vinci"
   },
   {
-    text: "Disiplin adalah jembatan antara cita-cita dan pencapaian.",
-    author: "Jim Rohn"
+    text: "I have not failed. I've just found 10,000 ways that won't work.",
+    author: "Thomas Edison"
   },
   {
-    text: "Waktu yang hilang tidak akan pernah bisa ditemukan kembali.",
-    author: "Benjamin Franklin"
+    text: "Your time is limited, so don't waste it living someone else's life.",
+    author: "Steve Jobs"
   }
 ];
 
@@ -51,9 +51,9 @@ export function QuotesCarousel() {
     <View style={styles.container}>
       <View style={styles.navigationRow}>
         <TouchableOpacity onPress={handlePrev} style={styles.navButton} activeOpacity={0.7}>
-          <IconSymbol size={20} name="chevron.left.forwardslash.chevron.right" color={theme.colors.textMuted} style={styles.rotateIconLeft} />
+          <IconSymbol size={20} name="chevron.right" color={theme.colors.textMuted} style={styles.rotateIconLeft} />
         </TouchableOpacity>
-        
+
         <View style={styles.quoteWrapper}>
           <Text style={styles.quoteText}>“{currentQuote.text}”</Text>
           <Text style={styles.quoteAuthor}>— {currentQuote.author}</Text>
@@ -111,7 +111,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.sans,
   },
   quoteAuthor: {
-    color: theme.colors.primary,
+    color: theme.colors.claude,
     fontSize: 12,
     fontWeight: '700',
     marginTop: theme.spacing.xs,
@@ -137,7 +137,7 @@ const styles = StyleSheet.create({
   },
   indicatorActive: {
     width: 14,
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.claude,
   },
 });
 

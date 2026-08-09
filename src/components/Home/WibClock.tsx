@@ -49,7 +49,8 @@ const styles = StyleSheet.create({
     borderRadius: theme.borderRadius.lg,
     padding: theme.spacing.md,
     borderWidth: 1,
-    marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.xxl,
+    marginBottom: theme.spacing.sm,
     shadowColor: '#000',
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.3,
@@ -72,7 +73,7 @@ const styles = StyleSheet.create({
     marginVertical: 2,
   },
   wibLabel: {
-    color: theme.colors.primary,
+    color: theme.colors.accent,
     fontSize: 18,
     fontWeight: '800',
   },

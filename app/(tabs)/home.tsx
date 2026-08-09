@@ -2,7 +2,8 @@ import { IconSymbol } from '@/components/ui/icon-symbol';
 import * as Haptics from 'expo-haptics';
 import { useRouter } from 'expo-router';
 import React, { useEffect } from 'react';
-import { SafeAreaView, ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, StatusBar, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { CalendarSummary } from '../../src/components/Home/CalendarSummary';
 import { QuotesCarousel } from '../../src/components/Home/QuotesCarousel';
 import { RecentWeeklyList } from '../../src/components/Home/RecentWeeklyList';
@@ -55,8 +56,8 @@ export function HomeScreen() {
               <IconSymbol size={20} name="timer" color="#FFFFFF" />
             </View>
             <View>
-              <Text style={styles.pomoTitle}>Fokus Sekarang</Text>
-              <Text style={styles.pomoSubtitle}>Mulai sesi belajar Pomodoro Anda</Text>
+              <Text style={styles.pomoTitle}>Focus Now</Text>
+              <Text style={styles.pomoSubtitle}>Start your pomodoro session</Text>
             </View>
           </View>
           <IconSymbol size={18} name="chevron.right" color={theme.colors.textMuted} />

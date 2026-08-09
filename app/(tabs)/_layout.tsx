@@ -10,7 +10,7 @@ export default function TabLayout() {
   return (
     <Tabs
       screenOptions={{
-        tabBarActiveTintColor: theme.colors.primary,
+        tabBarActiveTintColor: theme.colors.claude,
         tabBarInactiveTintColor: theme.colors.textDark,
         headerShown: false,
         tabBarButton: HapticTab,
@@ -26,7 +26,7 @@ export default function TabLayout() {
             backgroundColor: theme.colors.surface,
             borderTopWidth: 1,
             borderTopColor: theme.colors.border,
-            height: 60,
+            height: 100,
             paddingBottom: 8,
             paddingTop: 8,
           },
@@ -64,7 +64,7 @@ export default function TabLayout() {
       <Tabs.Screen
         name="calendar"
         options={{
-          title: 'Kalender',
+          title: 'Calendar',
           tabBarIcon: ({ color }) => <IconSymbol size={24} name="calendar" color={color} />,
         }}
       />

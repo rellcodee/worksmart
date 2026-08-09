@@ -8,19 +8,20 @@ export const theme = {
     surfaceLight: '#27272A',     // Zinc-800 (modal inputs, hover states)
     border: '#27272A',           // Zinc-800 (subtle dividers)
     borderFocus: '#3F3F46',      // Zinc-700
-    
+    putihDekil: '#d8d6d6ff',
+
     // Typography colors
     text: '#F4F4F5',             // Zinc-100 (high contrast text)
     textMuted: '#A1A1AA',        // Zinc-400 (secondary details)
     textDark: '#71717A',         // Zinc-500 (placeholder text)
-    
+
     // Accents
-    primary: '#6366F1',          // Indigo-500 (Focus areas, brand color)
-    primaryGlow: 'rgba(99, 102, 241, 0.15)',
-    
+    primary: '#d46617',          // Claude orange (Focus areas, brand color)
+    primaryGlow: 'rgba(212, 102, 23, 0.15)',
+    claude: '#d46617ff',
     accent: '#F97316',           // Orange-500 (Alerts, highlights, custom tags)
     accentGlow: 'rgba(249, 115, 22, 0.15)',
-    
+
     // Statuses
     success: '#10B981',          // Emerald-500 (Completed)
     warning: '#F59E0B',          // Amber-500 (Short break / warnings)
@@ -33,6 +34,7 @@ export const theme = {
     md: 16,
     lg: 24,
     xl: 32,
+    xxl: 48,
   },
   borderRadius: {
     xs: 4,

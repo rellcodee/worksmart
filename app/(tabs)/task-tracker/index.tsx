@@ -1,10 +1,11 @@
-import React, { useEffect } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, SafeAreaView } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useTaskStore } from '../../../src/store/useTaskStore';
-import { theme } from '../../../src/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import React, { useEffect } from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { theme } from '../../../src/constants/theme';
+import { useTaskStore } from '../../../src/store/useTaskStore';
 
 export function TaskTrackerHub() {
   const router = useRouter();
@@ -38,7 +39,7 @@ export function TaskTrackerHub() {
       <View style={styles.container}>
         <View style={styles.header}>
           <Text style={styles.headerTitle}>Task Tracker Hub</Text>
-          <Text style={styles.headerSubtitle}>Kelola fokus harian dan mingguan Anda</Text>
+          <Text style={styles.headerSubtitle}>Manage your daily and weekly tasks</Text>
         </View>
 
         {/* 1. Daily Tracker Card */}
@@ -48,25 +49,25 @@ export function TaskTrackerHub() {
           activeOpacity={0.8}
         >
           <View style={styles.cardHeader}>
-            <View style={[styles.iconBg, { backgroundColor: theme.colors.primary }]}>
+            <View style={[styles.iconBg, { backgroundColor: theme.colors.accent }]}>
               <IconSymbol size={22} name="checkmark.circle.fill" color="#FFFFFF" />
             </View>
             <View style={styles.cardHeaderRight}>
               <Text style={styles.cardTitle}>Daily Tracker</Text>
-              <Text style={styles.cardDesc}>Checklist rutinitas yang di-reset otomatis setiap hari</Text>
+              <Text style={styles.cardDesc}>Routine checklist that automatically resets daily</Text>
             </View>
           </View>
-          
+
           <View style={styles.statsRow}>
             <View>
-              <Text style={styles.statsLabel}>Progres Hari Ini</Text>
+              <Text style={styles.statsLabel}>Today Progress</Text>
               <Text style={styles.statsValue}>
-                {completedDaily}/{totalDaily} Selesai ({Math.round(dailyPercentage)}%)
+                {completedDaily} / {totalDaily} Completed ({Math.round(dailyPercentage)}%)
               </Text>
             </View>
             <IconSymbol size={20} name="chevron.right" color={theme.colors.textMuted} />
           </View>
-          
+
           {/* Progress Line */}
           <View style={styles.progressBarBg}>
             <View style={[styles.progressBarFill, { width: `${dailyPercentage}%` }]} />
@@ -80,20 +81,20 @@ export function TaskTrackerHub() {
           activeOpacity={0.8}
         >
           <View style={styles.cardHeader}>
-            <View style={[styles.iconBg, { backgroundColor: theme.colors.accent }]}>
-              <IconSymbol size={22} name="calendar" color="#FFFFFF" />
+            <View style={[styles.iconBg, { backgroundColor: theme.colors.putihDekil }]}>
+              <IconSymbol size={22} name="calendar" color={theme.colors.accent} />
             </View>
             <View style={styles.cardHeaderRight}>
               <Text style={styles.cardTitle}>Weekly Tracker</Text>
-              <Text style={styles.cardDesc}>Tugas dengan tenggat waktu dan pengingat alarm</Text>
+              <Text style={styles.cardDesc}>Tasks with deadlines and alarm reminders</Text>
             </View>
           </View>
-          
+
           <View style={styles.statsRow}>
             <View>
-              <Text style={styles.statsLabel}>Tugas Aktif</Text>
+              <Text style={styles.statsLabel}>Active Tasks</Text>
               <Text style={styles.statsValue}>
-                {activeWeeklyCount} Aktif ({completedWeeklyCount} Selesai)
+                {activeWeeklyCount} Active ({completedWeeklyCount} Completed)
               </Text>
             </View>
             <IconSymbol size={20} name="chevron.right" color={theme.colors.textMuted} />
@@ -102,7 +103,7 @@ export function TaskTrackerHub() {
           {/* Dummy visual weekly items preview */}
           <View style={styles.weeklySummaryRow}>
             <Text style={styles.weeklySummaryText}>
-              Agenda & tenggat waktu terintegrasi langsung dengan Kalender utama
+              Agenda & deadlines are integrated directly with the main Calendar
             </Text>
           </View>
         </TouchableOpacity>
@@ -123,6 +124,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: theme.spacing.xl,
+    marginTop: theme.spacing.xxl,
   },
   headerTitle: {
     color: theme.colors.text,

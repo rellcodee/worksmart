@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Modal, FlatList, SafeAreaView } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TextInput, TouchableOpacity, Modal, FlatList } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import * as Haptics from 'expo-haptics';
 import { useNoteStore, Note } from '../../src/store/useNoteStore';
 import { CategoryFilterBar } from '../../src/components/Notes/CategoryFilterBar';
@@ -90,7 +91,7 @@ export default function NotesScreen() {
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.subTitle}>KNOWLEDGE BASE</Text>
-          <Text style={styles.title}>Catatan Terkategori</Text>
+          <Text style={styles.title}>Categorized Notes</Text>
         </View>
 
         {/* Categories Bar */}
@@ -104,9 +105,9 @@ export default function NotesScreen() {
         {/* Notes Grid/List */}
         {filteredNotes.length === 0 ? (
           <View style={styles.emptyState}>
-            <Text style={styles.emptyText}>Belum ada catatan.</Text>
+            <Text style={styles.emptyText}>No notes yet.</Text>
             <TouchableOpacity onPress={handleOpenAddNote} style={styles.emptyBtn}>
-              <Text style={styles.emptyBtnText}>Buat Catatan Pertama</Text>
+              <Text style={styles.emptyBtnText}>Create First Note</Text>
             </TouchableOpacity>
           </View>
         ) : (
@@ -151,19 +152,19 @@ export default function NotesScreen() {
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <Text style={styles.modalTitle}>
-              {editingNote ? 'Ubah Catatan' : 'Catatan Baru'}
+              {editingNote ? 'Edit Note' : 'New Note'}
             </Text>
 
             <TextInput
               style={styles.titleInput}
-              placeholder="Judul Catatan"
+              placeholder="Note Title"
               placeholderTextColor={theme.colors.textDark}
               value={noteTitle}
               onChangeText={setNoteTitle}
             />
 
             {/* Category Selector inside Note Form */}
-            <Text style={styles.selectorLabel}>Pilih Kategori:</Text>
+            <Text style={styles.selectorLabel}>Select Category:</Text>
             <ScrollView
               horizontal
               showsHorizontalScrollIndicator={false}
@@ -179,7 +180,7 @@ export default function NotesScreen() {
                 <Text style={[
                   styles.selectorChipText,
                   noteCategoryId === null ? styles.selectorChipTextActive : null
-                ]}>Tanpa Kategori</Text>
+                ]}>Uncategorized</Text>
               </TouchableOpacity>
 
               {categories.map((cat) => (
@@ -201,7 +202,7 @@ export default function NotesScreen() {
 
             <TextInput
               style={styles.contentInput}
-              placeholder="Tulis catatan Anda di sini..."
+              placeholder="Write your note here..."
               placeholderTextColor={theme.colors.textDark}
               value={noteContent}
               onChangeText={setNoteContent}
@@ -215,14 +216,14 @@ export default function NotesScreen() {
                 onPress={() => setNoteModalVisible(false)}
                 style={styles.cancelBtn}
               >
-                <Text style={styles.cancelBtnText}>Batal</Text>
+                <Text style={styles.cancelBtnText}>Cancel</Text>
               </TouchableOpacity>
               
               <TouchableOpacity
                 onPress={handleSaveNote}
                 style={styles.saveBtn}
               >
-                <Text style={styles.saveBtnText}>Simpan</Text>
+                <Text style={styles.saveBtnText}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -238,7 +239,7 @@ export default function NotesScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Kelola Kategori</Text>
+            <Text style={styles.modalTitle}>Manage Categories</Text>
 
             {/* List existing categories */}
             <View style={styles.categoryListWrapper}>
@@ -261,7 +262,7 @@ export default function NotesScreen() {
                   </View>
                 )}
                 ListEmptyComponent={
-                  <Text style={styles.emptyCatText}>Belum ada kategori custom.</Text>
+                  <Text style={styles.emptyCatText}>No custom categories yet.</Text>
                 }
               />
             </View>
@@ -270,7 +271,7 @@ export default function NotesScreen() {
             <View style={styles.addCategoryForm}>
               <TextInput
                 style={styles.addCategoryInput}
-                placeholder="Nama kategori baru..."
+                placeholder="New category name..."
                 placeholderTextColor={theme.colors.textDark}
                 value={newCategoryName}
                 onChangeText={setNewCategoryName}
@@ -279,7 +280,7 @@ export default function NotesScreen() {
                 onPress={handleAddCategory}
                 style={styles.addCategoryBtn}
               >
-                <Text style={styles.addCategoryBtnText}>Tambah</Text>
+                <Text style={styles.addCategoryBtnText}>Add</Text>
               </TouchableOpacity>
             </View>
 
@@ -288,7 +289,7 @@ export default function NotesScreen() {
                 onPress={() => setCategoryModalVisible(false)}
                 style={styles.closeBtn}
               >
-                <Text style={styles.closeBtnText}>Tutup</Text>
+                <Text style={styles.closeBtnText}>Close</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -310,6 +311,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: theme.spacing.lg,
+    marginTop: theme.spacing.xxl,
   },
   subTitle: {
     color: theme.colors.primary,

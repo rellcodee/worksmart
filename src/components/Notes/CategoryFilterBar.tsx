@@ -1,8 +1,8 @@
-import React from 'react';
-import { StyleSheet, Text, ScrollView, TouchableOpacity, View } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { theme } from '../../constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import * as Haptics from 'expo-haptics';
+import React from 'react';
+import { ScrollView, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { theme } from '../../constants/theme';
 
 interface Category {
   id: string;
@@ -22,7 +22,7 @@ export function CategoryFilterBar({
   onSelectCategory,
   onManageCategories,
 }: CategoryFilterBarProps) {
-  
+
   const handleSelect = (id: string | null) => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     onSelectCategory(id);
@@ -85,7 +85,7 @@ export function CategoryFilterBar({
         style={styles.settingsButton}
         activeOpacity={0.7}
       >
-        <IconSymbol size={18} name="chevron.left.forwardslash.chevron.right" color={theme.colors.textMuted} />
+        <IconSymbol size={18} name="plus" color={theme.colors.textMuted} />
       </TouchableOpacity>
     </View>
   );

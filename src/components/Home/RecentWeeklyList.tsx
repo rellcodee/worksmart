@@ -1,10 +1,10 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import { useRouter } from 'expo-router';
-import { useTaskStore } from '../../store/useTaskStore';
-import { theme } from '../../constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
 import * as Haptics from 'expo-haptics';
+import { useRouter } from 'expo-router';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { theme } from '../../constants/theme';
+import { useTaskStore } from '../../store/useTaskStore';
 
 export function RecentWeeklyList() {
   const { weeklyTasks, updateWeeklyTask } = useTaskStore();
@@ -22,7 +22,7 @@ export function RecentWeeklyList() {
   const formatShortDate = (dateStr: string) => {
     try {
       const date = new Date(dateStr);
-      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+      const months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'];
       return `${date.getDate()} ${months[date.getMonth()]}`;
     } catch {
       return dateStr;
@@ -40,13 +40,13 @@ export function RecentWeeklyList() {
         style={styles.header}
         activeOpacity={0.7}
       >
-        <Text style={styles.title}>TUGAS MINGGUAN TERBARU</Text>
+        <Text style={styles.title}>LATEST WEEKLY ASSIGNMENTS</Text>
         <IconSymbol size={16} name="chevron.right" color={theme.colors.textMuted} />
       </TouchableOpacity>
 
       {recentTasks.length === 0 ? (
         <View style={styles.emptyContainer}>
-          <Text style={styles.emptyText}>Tidak ada tugas mingguan aktif.</Text>
+          <Text style={styles.emptyText}>No active weekly tasks.</Text>
         </View>
       ) : (
         <View style={styles.list}>
@@ -66,7 +66,7 @@ export function RecentWeeklyList() {
                   )}
                 </View>
               </TouchableOpacity>
-              
+
               <Text
                 style={[
                   styles.itemText,
@@ -76,7 +76,7 @@ export function RecentWeeklyList() {
               >
                 {task.title}
               </Text>
-              
+
               <Text style={styles.dueDateText}>
                 {formatShortDate(task.due_date)}
               </Text>

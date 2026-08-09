@@ -1,8 +1,8 @@
-import React from 'react';
-import { StyleSheet, Text, View, TouchableOpacity } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { theme } from '../../constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import * as Haptics from 'expo-haptics';
+import React from 'react';
+import { StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { theme } from '../../constants/theme';
 
 interface DailyTaskItemProps {
   id: string;
@@ -13,7 +13,7 @@ interface DailyTaskItemProps {
 }
 
 export function DailyTaskItem({ id, title, isCompleted, onToggle, onDelete }: DailyTaskItemProps) {
-  
+
   const handleToggle = async () => {
     // Heavy physical vibration feedback when completing, light impact when unchecking
     if (isCompleted === 0) {
@@ -58,7 +58,7 @@ export function DailyTaskItem({ id, title, isCompleted, onToggle, onDelete }: Da
         style={styles.deleteButton}
         activeOpacity={0.7}
       >
-        <IconSymbol size={18} name="trash.fill" color={theme.colors.danger} />
+        <IconSymbol size={18} name="trash.fill" color={theme.colors.claude} />
       </TouchableOpacity>
     </View>
   );
@@ -90,8 +90,8 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   checkboxCompleted: {
-    borderColor: theme.colors.success,
-    backgroundColor: theme.colors.success,
+    borderColor: theme.colors.claude,
+    backgroundColor: theme.colors.claude,
   },
   checkInner: {
     width: 10,

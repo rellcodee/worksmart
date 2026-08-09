@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, Modal, TextInput, SafeAreaView } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { useTaskStore, Event, WeeklyTask } from '../../src/store/useTaskStore';
-import { theme } from '../../src/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import * as Haptics from 'expo-haptics';
+import React, { useEffect, useState } from 'react';
+import { Modal, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { theme } from '../../src/constants/theme';
+import { useTaskStore } from '../../src/store/useTaskStore';
 
 export default function CalendarScreen() {
   const { weeklyTasks, events, addEvent, deleteEvent, loadAllData } = useTaskStore();
@@ -25,9 +26,18 @@ export default function CalendarScreen() {
   const year = currentDate.getFullYear();
   const month = currentDate.getMonth();
 
+  const today = new Date();
+  const thisMonth = today.getMonth();
+  const thisYear = today.getFullYear();
+
+  const currentMonth = currentDate.getMonth();
+  const currentYear = currentDate.getFullYear();
+
+  const isNotThisMonth = currentMonth !== thisMonth || currentYear !== thisYear;
+
   const monthNames = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
   // Month navigation handlers
@@ -35,6 +45,11 @@ export default function CalendarScreen() {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
     setCurrentDate(new Date(year, month - 1, 1));
   };
+
+  const navigateThisMonth = () => {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
+    setCurrentDate(new Date());
+  }
 
   const handleNextMonth = () => {
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -75,7 +90,7 @@ export default function CalendarScreen() {
   const handleSaveEvent = () => {
     if (eventTitle.trim() === '') return;
 
-    addEvent(eventTitle.trim(), eventDesc.trim(), selectedDateStr);
+    addEvent(eventTitle.trim(), selectedDateStr, eventDesc.trim());
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
     setModalVisible(false);
   };
@@ -83,10 +98,10 @@ export default function CalendarScreen() {
   const formatDateLabel = (dateStr: string) => {
     try {
       const d = new Date(dateStr);
-      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
       ];
       return `${days[d.getDay()]}, ${d.getDate()} ${months[d.getMonth()]} ${d.getFullYear()}`;
     } catch {
@@ -94,25 +109,35 @@ export default function CalendarScreen() {
     }
   };
 
-  const weekdays = ['Min', 'Sen', 'Sel', 'Rab', 'Kam', 'Jum', 'Sab'];
+  const weekdays = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   const todayStr = new Date().toISOString().split('T')[0];
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <ScrollView contentContainerStyle={styles.scrollContainer} showsVerticalScrollIndicator={false}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.subTitle}>AGENDA ENGINE</Text>
-          <Text style={styles.title}>Kalender & Jadwal</Text>
+          <Text style={styles.title}>Calendar & Schedule</Text>
         </View>
 
         {/* Month Selector */}
         <View style={styles.monthSelector}>
-          <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn} activeOpacity={0.7}>
-            <IconSymbol size={22} name="chevron.left.forwardslash.chevron.right" color={theme.colors.text} style={styles.rotateIconLeft} />
-          </TouchableOpacity>
+          <View style={{ flexDirection: 'row', gap: theme.spacing.xs }}>
+            <TouchableOpacity onPress={handlePrevMonth} style={styles.navBtn} activeOpacity={0.7}>
+              <IconSymbol size={22} name="chevron.right" color={theme.colors.text} style={styles.rotateIconLeft} />
+            </TouchableOpacity>
+            {isNotThisMonth ? (
+              <TouchableOpacity onPress={navigateThisMonth} style={styles.navBtn} activeOpacity={0.7}>
+                <IconSymbol size={22} name="calendar" color={theme.colors.text} style={styles.rotateIconLeft} />
+              </TouchableOpacity>
+            ) : null}
+
+          </View>
+
           <Text style={styles.monthTitle}>{monthNames[month]} {year}</Text>
+
           <TouchableOpacity onPress={handleNextMonth} style={styles.navBtn} activeOpacity={0.7}>
             <IconSymbol size={22} name="chevron.right" color={theme.colors.text} />
           </TouchableOpacity>
@@ -174,7 +199,7 @@ export default function CalendarScreen() {
             style={styles.addEventBtn}
             activeOpacity={0.8}
           >
-            <Text style={styles.addEventBtnText}>+ Tambah Event</Text>
+            <Text style={styles.addEventBtnText}>+ Add Event</Text>
           </TouchableOpacity>
         </View>
 
@@ -182,7 +207,7 @@ export default function CalendarScreen() {
         <View style={styles.itineraryList}>
           {selectedDateEvents.length === 0 && selectedDateTasks.length === 0 ? (
             <View style={styles.emptyItinerary}>
-              <Text style={styles.emptyItineraryText}>Tidak ada agenda pada tanggal ini.</Text>
+              <Text style={styles.emptyItineraryText}>No agenda on this date.</Text>
             </View>
           ) : (
             <>
@@ -191,7 +216,7 @@ export default function CalendarScreen() {
                 <View key={task.id} style={styles.itineraryCardTask}>
                   <View style={styles.itineraryCardLeft}>
                     <View style={styles.taskBadge}>
-                      <Text style={styles.taskBadgeText}>DEADLINE TUGAS</Text>
+                      <Text style={styles.taskBadgeText}>TASK DEADLINE</Text>
                     </View>
                     <Text style={[
                       styles.activityTitle,
@@ -208,7 +233,7 @@ export default function CalendarScreen() {
                     task.is_completed === 1 ? styles.statusCompleted : styles.statusPending
                   ]}>
                     <Text style={styles.statusIndicatorText}>
-                      {task.is_completed === 1 ? 'SELESAI' : 'AKTIF'}
+                      {task.is_completed === 1 ? 'COMPLETED' : 'ACTIVE'}
                     </Text>
                   </View>
                 </View>
@@ -253,23 +278,23 @@ export default function CalendarScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Tambah Agenda Baru</Text>
-            
-            <Text style={styles.modalSubLabel}>Tanggal: {formatDateLabel(selectedDateStr)}</Text>
+            <Text style={styles.modalTitle}>Add New Event</Text>
 
-            <Text style={styles.inputLabel}>Judul Agenda</Text>
+            <Text style={styles.modalSubLabel}>Date: {formatDateLabel(selectedDateStr)}</Text>
+
+            <Text style={styles.inputLabel}>Event Title</Text>
             <TextInput
               style={styles.modalInput}
-              placeholder="Contoh: Ujian Tengah Semester, Meeting Tim..."
+              placeholder="e.g., Midterm Exam, Team Meeting..."
               placeholderTextColor={theme.colors.textDark}
               value={eventTitle}
               onChangeText={setEventTitle}
             />
 
-            <Text style={styles.inputLabel}>Deskripsi / Detail (Opsional)</Text>
+            <Text style={styles.inputLabel}>Description / Details (Optional)</Text>
             <TextInput
               style={[styles.modalInput, styles.areaInput]}
-              placeholder="Tambahkan catatan lokasi, jam, atau detail lainnya..."
+              placeholder="Add notes about location, time, or other details..."
               placeholderTextColor={theme.colors.textDark}
               value={eventDesc}
               onChangeText={setEventDesc}
@@ -283,15 +308,15 @@ export default function CalendarScreen() {
                 style={styles.cancelBtn}
                 activeOpacity={0.7}
               >
-                <Text style={styles.cancelBtnText}>Batal</Text>
+                <Text style={styles.cancelBtnText}>Cancel</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 onPress={handleSaveEvent}
                 style={styles.saveBtn}
                 activeOpacity={0.7}
               >
-                <Text style={styles.saveBtnText}>Simpan</Text>
+                <Text style={styles.saveBtnText}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -312,6 +337,7 @@ const styles = StyleSheet.create({
   },
   header: {
     marginBottom: theme.spacing.md,
+    marginTop: theme.spacing.xxl,
   },
   subTitle: {
     color: theme.colors.primary,
@@ -388,12 +414,16 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   todayBox: {
-    backgroundColor: theme.colors.surfaceLight,
+    backgroundColor: theme.colors.primary,
     borderWidth: 1,
-    borderColor: theme.colors.textMuted,
+    borderRadius: 16,
+
   },
   selectedBox: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.surfaceLight,
+    borderRadius: 25,
+    borderColor: theme.colors.textMuted,
+
   },
   dayNumText: {
     color: theme.colors.text,
@@ -402,7 +432,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.sans,
   },
   todayText: {
-    color: theme.colors.primary,
+    color: '#FFFFFF',
     fontWeight: '700',
   },
   selectedText: {
@@ -413,7 +443,7 @@ const styles = StyleSheet.create({
     width: 5,
     height: 5,
     borderRadius: 2.5,
-    backgroundColor: theme.colors.accent,
+    backgroundColor: theme.colors.claude,
     position: 'absolute',
     bottom: 2,
   },

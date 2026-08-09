@@ -2,15 +2,17 @@ import * as Notifications from 'expo-notifications';
 import { Platform } from 'react-native';
 
 // Set up the foreground notification handler
-Notifications.setNotificationHandler({
-  handleNotification: async () => ({
-    shouldShowAlert: true,
-    shouldPlaySound: true,
-    shouldSetBadge: false,
-    shouldShowBanner: true,
-    shouldShowList: true,
-  }),
-});
+if (Platform.OS !== 'web') {
+  Notifications.setNotificationHandler({
+    handleNotification: async () => ({
+      shouldShowAlert: true,
+      shouldPlaySound: true,
+      shouldSetBadge: false,
+      shouldShowBanner: true,
+      shouldShowList: true,
+    }),
+  });
+}
 
 /**
  * Requests permissions for displaying notifications on the device.
@@ -63,16 +65,31 @@ export async function scheduleEventNotification(
     // Cancel any previous scheduled notification with the same ID
     await cancelEventNotification(id);
 
+    // Configure channel for Android custom sound
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('default-event-channel', {
+        name: 'Event Reminders',
+        importance: Notifications.AndroidImportance.MAX,
+        sound: 'notif.mp3',
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#d46617',
+      });
+    }
+
     // Schedule notification
     const notificationId = await Notifications.scheduleNotificationAsync({
       identifier: id,
       content: {
         title: title,
         body: body,
-        sound: true,
+        sound: 'notif.mp3', // Custom sound for iOS
         priority: Notifications.AndroidNotificationPriority.HIGH,
       },
-      trigger: targetDate as any,
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DATE,
+        date: targetDate,
+        channelId: 'default-event-channel', // Target custom channel for Android
+      },
     });
 
     return notificationId;

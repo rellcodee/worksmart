@@ -2,6 +2,7 @@ import { create } from 'zustand';
 import { Vibration } from 'react-native';
 import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
+import { Audio } from 'expo-av';
 import { getDb } from '../db/database';
 
 export type TimerMode = 'focus' | 'short_break' | 'long_break';
@@ -14,6 +15,7 @@ interface PomodoroState {
   timeLeft: number; // in seconds
   isRunning: boolean;
   endTime: number | null; // target timestamp (ms)
+  isAlarmActive: boolean;
 
   loadSettings: () => Promise<void>;
   updateSettings: (focus: number, short: number, long: number) => Promise<void>;
@@ -23,10 +25,49 @@ interface PomodoroState {
   resetTimer: () => Promise<void>;
   tick: (onComplete?: () => void) => void;
   checkBackgroundTime: (onComplete?: () => void) => void;
+  stopAlarm: () => Promise<void>;
 }
 
 let timerInterval: any = null;
 const POMODORO_NOTIF_ID = 'pomodoro-timer-alert';
+let soundObject: Audio.Sound | null = null;
+
+async function playAlarmSound() {
+  try {
+    if (soundObject) {
+      await soundObject.stopAsync();
+      await soundObject.unloadAsync();
+      soundObject = null;
+    }
+
+    await Audio.setAudioModeAsync({
+      playsInSilentModeIOS: true,
+      allowsRecordingIOS: false,
+      staysActiveInBackground: true,
+      playThroughEarpieceAndroid: false,
+    });
+
+    const { sound } = await Audio.Sound.createAsync(
+      require('../../assets/audio/alarm.mp3'),
+      { shouldPlay: true, isLooping: true }
+    );
+    soundObject = sound;
+  } catch (error) {
+    console.error('Failed to play alarm sound:', error);
+  }
+}
+
+async function stopAlarmSound() {
+  try {
+    if (soundObject) {
+      await soundObject.stopAsync();
+      await soundObject.unloadAsync();
+      soundObject = null;
+    }
+  } catch (error) {
+    console.error('Failed to stop alarm sound:', error);
+  }
+}
 
 export const usePomodoroStore = create<PomodoroState>((set, get) => ({
   focusTime: 25,
@@ -36,6 +77,7 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
   timeLeft: 25 * 60,
   isRunning: false,
   endTime: null,
+  isAlarmActive: false,
 
   loadSettings: async () => {
     try {
@@ -85,6 +127,7 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
         timerInterval = null;
       }
       await Notifications.cancelScheduledNotificationAsync(POMODORO_NOTIF_ID);
+      await stopAlarmSound();
 
       set({
         focusTime: focus,
@@ -93,6 +136,7 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
         timeLeft: nextSeconds,
         isRunning: false,
         endTime: null,
+        isAlarmActive: false,
       });
     } catch (error) {
       console.error('Failed to update pomodoro settings:', error);
@@ -111,37 +155,44 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       timerInterval = null;
     }
     Notifications.cancelScheduledNotificationAsync(POMODORO_NOTIF_ID);
+    stopAlarmSound();
 
     set({
       timerMode: mode,
       timeLeft: seconds,
       isRunning: false,
       endTime: null,
+      isAlarmActive: false,
     });
   },
 
   startTimer: async (onComplete) => {
-    const { isRunning, timeLeft, timerMode } = get();
+    const { isRunning, timeLeft, timerMode, isAlarmActive } = get();
     if (isRunning) return;
+
+    // If alarm is ringing, stop it
+    if (isAlarmActive) {
+      await stopAlarmSound();
+    }
 
     // Trigger slight haptic feedback
     Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
 
     const targetEndTime = Date.now() + timeLeft * 1000;
-    set({ isRunning: true, endTime: targetEndTime });
+    set({ isRunning: true, endTime: targetEndTime, isAlarmActive: false });
 
     // Schedule background notification
     const notificationTitle =
       timerMode === 'focus'
-        ? 'Sesi Fokus Selesai!'
+        ? 'Focus Session Finished!'
         : timerMode === 'short_break'
-        ? 'Istirahat Singkat Selesai!'
-        : 'Istirahat Panjang Selesai!';
+        ? 'Short Break Finished!'
+        : 'Long Break Finished!';
     
     const notificationBody =
       timerMode === 'focus'
-        ? 'Bagus sekali! Waktunya istirahat sejenak.'
-        : 'Waktunya kembali fokus bekerja!';
+        ? 'Great job! Time for a short break.'
+        : 'Time to get back to work!';
 
     await Notifications.scheduleNotificationAsync({
       identifier: POMODORO_NOTIF_ID,
@@ -169,10 +220,11 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       timerInterval = null;
     }
     await Notifications.cancelScheduledNotificationAsync(POMODORO_NOTIF_ID);
+    await stopAlarmSound();
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
 
-    set({ isRunning: false, endTime: null });
+    set({ isRunning: false, endTime: null, isAlarmActive: false });
   },
 
   resetTimer: async () => {
@@ -181,6 +233,7 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       timerInterval = null;
     }
     await Notifications.cancelScheduledNotificationAsync(POMODORO_NOTIF_ID);
+    await stopAlarmSound();
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
 
@@ -189,7 +242,7 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
     if (timerMode === 'short_break') seconds = shortBreak * 60;
     if (timerMode === 'long_break') seconds = longBreak * 60;
 
-    set({ timeLeft: seconds, isRunning: false, endTime: null });
+    set({ timeLeft: seconds, isRunning: false, endTime: null, isAlarmActive: false });
   },
 
   tick: (onComplete) => {
@@ -205,7 +258,9 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       Vibration.vibrate([0, 500, 200, 500]);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
-      set({ timeLeft: 0, isRunning: false, endTime: null });
+      playAlarmSound();
+
+      set({ timeLeft: 0, isRunning: false, endTime: null, isAlarmActive: true });
       if (onComplete) onComplete();
     } else {
       set({ timeLeft: timeLeft - 1 });
@@ -229,7 +284,9 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       Vibration.vibrate([0, 500, 200, 500]);
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
-      set({ timeLeft: 0, isRunning: false, endTime: null });
+      playAlarmSound();
+
+      set({ timeLeft: 0, isRunning: false, endTime: null, isAlarmActive: true });
       if (onComplete) onComplete();
     } else {
       set({ timeLeft: remainingSeconds });
@@ -239,6 +296,11 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
         get().tick(onComplete);
       }, 1000);
     }
+  },
+
+  stopAlarm: async () => {
+    await stopAlarmSound();
+    set({ isAlarmActive: false });
   },
 }));
 export default usePomodoroStore;

@@ -1,11 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, TextInput, TouchableOpacity, ScrollView, SafeAreaView, KeyboardAvoidingView, Platform } from 'react-native';
-import { useTaskStore } from '../../../src/store/useTaskStore';
+import { IconSymbol } from '@/components/ui/icon-symbol';
+import * as Haptics from 'expo-haptics';
+import React, { useEffect, useState } from 'react';
+import { KeyboardAvoidingView, Platform, ScrollView, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { CircularProgressBar } from '../../../src/components/Daily/CircularProgressBar';
 import { DailyTaskItem } from '../../../src/components/Daily/DailyTaskItem';
 import { theme } from '../../../src/constants/theme';
-import { IconSymbol } from '@/components/ui/icon-symbol';
-import * as Haptics from 'expo-haptics';
+import { useTaskStore } from '../../../src/store/useTaskStore';
 
 export function DailyTrackerScreen() {
   const { dailyTasks, loadAllData, addDailyTask, toggleDailyTask, deleteDailyTask } = useTaskStore();
@@ -21,7 +22,7 @@ export function DailyTrackerScreen() {
 
   const handleAddTask = async () => {
     if (!newTaskTitle.trim()) return;
-    
+
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
     await addDailyTask(newTaskTitle.trim());
     setNewTaskTitle('');
@@ -48,14 +49,14 @@ export function DailyTrackerScreen() {
           />
 
           <View style={styles.listHeader}>
-            <Text style={styles.listTitle}>Rutinitas Anda</Text>
-            <Text style={styles.listSubtitle}>Tugas selesai otomatis ter-reset pada pukul 00:00</Text>
+            <Text style={styles.listTitle}>Your Daily Tasks</Text>
+            <Text style={styles.listSubtitle}>Tasks are automatically reset at 00:00</Text>
           </View>
 
           {/* List items */}
           {dailyTasks.length === 0 ? (
             <View style={styles.emptyContainer}>
-              <Text style={styles.emptyText}>Belum ada tugas harian. Mulai buat rutinitas baru!</Text>
+              <Text style={styles.emptyText}>No daily tasks yet. Start creating new routines!</Text>
             </View>
           ) : (
             <View style={styles.listContainer}>
@@ -77,7 +78,7 @@ export function DailyTrackerScreen() {
         <View style={styles.inputContainer}>
           <TextInput
             style={styles.input}
-            placeholder="Tambah rutinitas harian..."
+            placeholder="Add a new daily task..."
             placeholderTextColor={theme.colors.textDark}
             value={newTaskTitle}
             onChangeText={setNewTaskTitle}
@@ -110,7 +111,7 @@ const styles = StyleSheet.create({
   },
   scrollContent: {
     paddingHorizontal: theme.spacing.md,
-    paddingTop: theme.spacing.xs,
+    paddingTop: theme.spacing.xxl,
     paddingBottom: 100, // input offset
   },
   listHeader: {
@@ -172,7 +173,7 @@ const styles = StyleSheet.create({
     fontFamily: theme.fonts.sans,
   },
   addButton: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.accent,
     width: 44,
     height: 44,
     borderRadius: theme.borderRadius.sm,

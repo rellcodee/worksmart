@@ -1,5 +1,5 @@
 import React from 'react';
-import { StyleSheet, View, Text } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { theme } from '../../constants/theme';
 
@@ -30,7 +30,7 @@ export function CircularProgressBar({ percentage, completedCount, totalCount }: 
         />
         {/* Progress Circle */}
         <Circle
-          stroke={theme.colors.primary}
+          stroke={theme.colors.claude}
           fill="none"
           cx={size / 2}
           cy={size / 2}
@@ -42,11 +42,11 @@ export function CircularProgressBar({ percentage, completedCount, totalCount }: 
           transform={`rotate(-90 ${size / 2} ${size / 2})`}
         />
       </Svg>
-      
+
       {/* Centered labels */}
       <View style={styles.textContainer}>
         <Text style={styles.percentageText}>{Math.round(percentage)}%</Text>
-        <Text style={styles.countText}>{completedCount}/{totalCount} Selesai</Text>
+        <Text style={styles.countText}>{completedCount}/{totalCount} Done</Text>
       </View>
     </View>
   );

@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import { StyleSheet, Text, View, ScrollView, TouchableOpacity, SafeAreaView, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { StyleSheet, Text, View, ScrollView, TouchableOpacity, TextInput, Modal, KeyboardAvoidingView, Platform } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 import { useTaskStore } from '../../../src/store/useTaskStore';
 import { theme } from '../../../src/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
@@ -62,10 +63,10 @@ export function WeeklyTrackerScreen() {
   const formatLongDate = (dateStr: string) => {
     try {
       const date = new Date(dateStr);
-      const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+      const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       const months = [
-        'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-        'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+        'January', 'February', 'March', 'April', 'May', 'June',
+        'July', 'August', 'September', 'October', 'November', 'December'
       ];
       return `${days[date.getDay()]}, ${date.getDate()} ${months[date.getMonth()]} ${date.getFullYear()}`;
     } catch {
@@ -81,17 +82,17 @@ export function WeeklyTrackerScreen() {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.headerInfo}>
-          <Text style={styles.infoTitle}>Daftar Tugas Mingguan</Text>
+          <Text style={styles.infoTitle}>Weekly Tasks</Text>
           <Text style={styles.infoSubtitle}>
-            Setiap tugas memiliki due date terintegrasi dengan reminder dan agenda Kalender.
+            Each task has a due date integrated with reminders and the main Calendar.
           </Text>
         </View>
 
         {weeklyTasks.length === 0 ? (
           <View style={styles.emptyContainer}>
             <IconSymbol size={48} name="calendar" color={theme.colors.textDark} />
-            <Text style={styles.emptyText}>Tidak ada tugas mingguan.</Text>
-            <Text style={styles.emptySubtext}>Klik tombol + di bawah untuk menambahkan tugas.</Text>
+            <Text style={styles.emptyText}>No weekly tasks.</Text>
+            <Text style={styles.emptySubtext}>Tap the + button below to add a task.</Text>
           </View>
         ) : (
           <View style={styles.list}>
@@ -129,7 +130,7 @@ export function WeeklyTrackerScreen() {
                       {task.title}
                     </Text>
                     <Text style={styles.dueDate}>
-                      Jatuh Tempo: {formatLongDate(task.due_date)}
+                      Due Date: {formatLongDate(task.due_date)}
                     </Text>
                   </View>
                 </View>
@@ -185,7 +186,7 @@ export function WeeklyTrackerScreen() {
             style={styles.modalContainer}
           >
             <View style={styles.modalHeader}>
-              <Text style={styles.modalTitle}>Tugas Mingguan Baru</Text>
+              <Text style={styles.modalTitle}>New Weekly Task</Text>
               <TouchableOpacity onPress={() => setModalVisible(false)} activeOpacity={0.7}>
                 <IconSymbol size={20} name="xmark" color={theme.colors.textMuted} />
               </TouchableOpacity>
@@ -193,10 +194,10 @@ export function WeeklyTrackerScreen() {
 
             <ScrollView contentContainerStyle={styles.modalForm} keyboardShouldPersistTaps="handled">
               <View style={styles.formGroup}>
-                <Text style={styles.label}>Judul Tugas</Text>
+                <Text style={styles.label}>Task Title</Text>
                 <TextInput
                   style={styles.textInput}
-                  placeholder="Masukkan judul tugas..."
+                  placeholder="Enter task title..."
                   placeholderTextColor={theme.colors.textDark}
                   value={title}
                   onChangeText={setTitle}
@@ -204,10 +205,10 @@ export function WeeklyTrackerScreen() {
               </View>
 
               <View style={styles.formGroup}>
-                <Text style={styles.label}>Deskripsi (Opsional)</Text>
+                <Text style={styles.label}>Description (Optional)</Text>
                 <TextInput
                   style={[styles.textInput, styles.textArea]}
-                  placeholder="Masukkan deskripsi detail..."
+                  placeholder="Enter detailed description..."
                   placeholderTextColor={theme.colors.textDark}
                   value={description}
                   onChangeText={setDescription}
@@ -217,7 +218,7 @@ export function WeeklyTrackerScreen() {
               </View>
 
               <View style={styles.formGroup}>
-                <Text style={styles.label}>Tanggal Jatuh Tempo (YYYY-MM-DD)</Text>
+                <Text style={styles.label}>Due Date (YYYY-MM-DD)</Text>
                 <TextInput
                   style={styles.textInput}
                   placeholder="Format: YYYY-MM-DD"
@@ -232,7 +233,7 @@ export function WeeklyTrackerScreen() {
                 style={styles.saveButton}
                 activeOpacity={0.8}
               >
-                <Text style={styles.saveButtonText}>Simpan Tugas</Text>
+                <Text style={styles.saveButtonText}>Save Task</Text>
               </TouchableOpacity>
             </ScrollView>
           </KeyboardAvoidingView>
@@ -257,6 +258,7 @@ const styles = StyleSheet.create({
   },
   headerInfo: {
     marginBottom: theme.spacing.lg,
+    marginTop: theme.spacing.xxl,
   },
   infoTitle: {
     color: theme.colors.text,

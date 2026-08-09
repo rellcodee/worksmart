@@ -1,11 +1,11 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { useTaskStore } from '../../store/useTaskStore';
 import { theme } from '../../constants/theme';
+import { useTaskStore } from '../../store/useTaskStore';
 
 export function CalendarSummary() {
   const { weeklyTasks, events } = useTaskStore();
-  
+
   const now = new Date();
   // Get current date in WIB local offset
   const utcMs = now.getTime() + (now.getTimezoneOffset() * 60 * 1000);
@@ -15,8 +15,8 @@ export function CalendarSummary() {
   const todayDate = wibDate.getDate();
 
   const monthNames = [
-    'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-    'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
+    'January', 'February', 'March', 'April', 'May', 'June',
+    'July', 'August', 'September', 'October', 'November', 'December'
   ];
 
   // Calculate day index for day 1 of current month
@@ -31,12 +31,12 @@ export function CalendarSummary() {
   weeklyTasks.forEach((t) => markerDates.add(t.due_date));
   events.forEach((e) => markerDates.add(e.event_date));
 
-  const weekdays = ['S', 'S', 'R', 'K', 'J', 'S', 'M'];
+  const weekdays = ['M', 'T', 'W', 'T', 'F', 'S', 'S'];
 
   return (
     <View style={styles.container}>
       <Text style={styles.monthTitle}>{monthNames[month]} {year}</Text>
-      
+
       <View style={styles.gridHeader}>
         {weekdays.map((day, idx) => (
           <Text key={idx} style={styles.headerCell}>{day}</Text>
@@ -123,7 +123,7 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
   },
   todayWrapper: {
-    backgroundColor: theme.colors.primary,
+    backgroundColor: theme.colors.claude,
   },
   dayText: {
     color: theme.colors.textMuted,

@@ -189,9 +189,9 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       // Schedule alarm reminder
       await scheduleEventNotification(
         id,
-        'Deadline Tugas Mingguan!',
+        'Weekly Task Deadline!',
         dueDate,
-        `Tugas "${title}" jatuh tempo hari ini. Jangan lupa untuk menyelesaikannya!`
+        `Task "${title}" is due today. Don't forget to complete it!`
       );
 
       set((state) => ({
@@ -220,9 +220,9 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         // Reschedule/Update notification if incomplete
         await scheduleEventNotification(
           id,
-          'Deadline Tugas Mingguan!',
+          'Weekly Task Deadline!',
           dueDate,
-          `Tugas "${title}" jatuh tempo hari ini. Jangan lupa untuk menyelesaikannya!`
+          `Task "${title}" is due today. Don't forget to complete it!`
         );
       }
 
@@ -265,9 +265,9 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       // Schedule local morning alarm
       await scheduleEventNotification(
         id,
-        `Agenda Hari Ini: ${title}`,
+        `Today's Agenda: ${title}`,
         dateStr,
-        description || 'Anda memiliki agenda yang dijadwalkan hari ini!'
+        description || 'You have a scheduled event today!'
       );
 
       set((state) => ({

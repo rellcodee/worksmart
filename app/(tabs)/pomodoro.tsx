@@ -1,9 +1,10 @@
-import React, { useEffect, useState } from 'react';
-import { StyleSheet, Text, View, TouchableOpacity, Modal, TextInput, AppState, AppStateStatus, SafeAreaView } from 'react-native';
-import * as Haptics from 'expo-haptics';
-import { usePomodoroStore, TimerMode } from '../../src/store/usePomodoroStore';
-import { theme } from '../../src/constants/theme';
 import { IconSymbol } from '@/components/ui/icon-symbol';
+import * as Haptics from 'expo-haptics';
+import React, { useEffect, useState } from 'react';
+import { AppState, AppStateStatus, Modal, StyleSheet, Text, TextInput, TouchableOpacity, View } from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
+import { theme } from '../../src/constants/theme';
+import { TimerMode, usePomodoroStore } from '../../src/store/usePomodoroStore';
 
 export default function PomodoroScreen() {
   const {
@@ -13,6 +14,7 @@ export default function PomodoroScreen() {
     timerMode,
     timeLeft,
     isRunning,
+    isAlarmActive,
     loadSettings,
     updateSettings,
     setTimerMode,
@@ -20,10 +22,11 @@ export default function PomodoroScreen() {
     pauseTimer,
     resetTimer,
     checkBackgroundTime,
+    stopAlarm,
   } = usePomodoroStore();
 
   const [settingsVisible, setSettingsVisible] = useState(false);
-  
+
   // Custom inputs state
   const [focusInput, setFocusInput] = useState('');
   const [shortInput, setShortInput] = useState('');
@@ -70,7 +73,7 @@ export default function PomodoroScreen() {
     const long = parseInt(longInput, 10);
 
     if (isNaN(focus) || isNaN(short) || isNaN(long) || focus <= 0 || short <= 0 || long <= 0) {
-      alert('Durasi harus berupa angka positif!');
+      alert('Duration must be a positive number!');
       return;
     }
 
@@ -83,13 +86,13 @@ export default function PomodoroScreen() {
     timerMode === 'focus'
       ? theme.colors.primary
       : timerMode === 'short_break'
-      ? theme.colors.warning
-      : theme.colors.danger;
+        ? theme.colors.warning
+        : theme.colors.danger;
 
   return (
     <SafeAreaView style={styles.safeArea}>
       <View style={styles.container}>
-        
+
         {/* Header */}
         <View style={styles.header}>
           <Text style={styles.subTitle}>FOCUS ENGINE</Text>
@@ -102,10 +105,10 @@ export default function PomodoroScreen() {
             const isActive = timerMode === mode;
             const modeLabel =
               mode === 'focus'
-                ? 'Fokus'
+                ? 'Focus'
                 : mode === 'short_break'
-                ? 'Istirahat Singkat'
-                : 'Istirahat Panjang';
+                  ? 'Short Break'
+                  : 'Long Break';
 
             return (
               <TouchableOpacity
@@ -118,15 +121,15 @@ export default function PomodoroScreen() {
                   styles.modeTab,
                   isActive
                     ? {
-                        backgroundColor:
-                          mode === 'focus'
-                            ? theme.colors.primaryGlow
-                            : mode === 'short_break'
+                      backgroundColor:
+                        mode === 'focus'
+                          ? theme.colors.primaryGlow
+                          : mode === 'short_break'
                             ? 'rgba(245, 158, 11, 0.15)'
                             : 'rgba(239, 68, 68, 0.15)',
-                        borderColor: activeModeColor,
-                        borderWidth: 1,
-                      }
+                      borderColor: activeModeColor,
+                      borderWidth: 1,
+                    }
                     : null,
                 ]}
                 activeOpacity={0.7}
@@ -151,10 +154,22 @@ export default function PomodoroScreen() {
           </Text>
           <Text style={styles.modeIndicator}>
             {timerMode === 'focus'
-              ? 'Saatnya tetap fokus!'
-              : 'Santai, istirahatkan pikiranmu.'}
+              ? 'Time to stay focused!'
+              : 'Relax, rest your mind.'}
           </Text>
         </View>
+
+        {/* Stop Alarm Button */}
+        {isAlarmActive && (
+          <TouchableOpacity
+            onPress={stopAlarm}
+            style={styles.stopAlarmBtn}
+            activeOpacity={0.8}
+          >
+            <IconSymbol size={20} name="bell.fill" color="#FFFFFF" style={{ marginRight: 8 }} />
+            <Text style={styles.stopAlarmBtnText}>STOP ALARM</Text>
+          </TouchableOpacity>
+        )}
 
         {/* Timer Control Buttons */}
         <View style={styles.controlRow}>
@@ -164,7 +179,7 @@ export default function PomodoroScreen() {
             style={styles.circleBtnSecondary}
             activeOpacity={0.7}
           >
-            <IconSymbol size={24} name="chevron.left.forwardslash.chevron.right" color={theme.colors.text} style={styles.settingsIcon} />
+            <IconSymbol size={22} name="pencil" color={theme.colors.text} style={styles.settingsIcon} />
           </TouchableOpacity>
 
           {/* Start / Pause */}
@@ -181,7 +196,7 @@ export default function PomodoroScreen() {
           >
             <IconSymbol
               size={32}
-              name={isRunning ? 'chevron.left.forwardslash.chevron.right' : 'chevron.right'} // Using basic mapped ones, wait: in IconSymbol, we have 'chevron.right' = chevron-right. Let's make sure it looks fine or map play/pause
+              name={isRunning ? 'pause' : 'play'}
               color="#FFFFFF"
             />
           </TouchableOpacity>
@@ -192,7 +207,7 @@ export default function PomodoroScreen() {
             style={styles.circleBtnSecondary}
             activeOpacity={0.7}
           >
-            <IconSymbol size={24} name="trash.fill" color={theme.colors.text} />
+            <IconSymbol size={24} name="restart" color={theme.colors.text} />
           </TouchableOpacity>
         </View>
 
@@ -207,9 +222,9 @@ export default function PomodoroScreen() {
       >
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Kustomisasi Durasi (Menit)</Text>
+            <Text style={styles.modalTitle}>Customize Duration (Minutes)</Text>
 
-            <Text style={styles.inputLabel}>Sesi Fokus (Pomodoro)</Text>
+            <Text style={styles.inputLabel}>Focus Session (Pomodoro)</Text>
             <TextInput
               style={styles.modalInput}
               keyboardType="number-pad"
@@ -217,7 +232,7 @@ export default function PomodoroScreen() {
               onChangeText={setFocusInput}
             />
 
-            <Text style={styles.inputLabel}>Istirahat Singkat</Text>
+            <Text style={styles.inputLabel}>Short Break</Text>
             <TextInput
               style={styles.modalInput}
               keyboardType="number-pad"
@@ -225,7 +240,7 @@ export default function PomodoroScreen() {
               onChangeText={setShortInput}
             />
 
-            <Text style={styles.inputLabel}>Istirahat Panjang</Text>
+            <Text style={styles.inputLabel}>Long Break</Text>
             <TextInput
               style={styles.modalInput}
               keyboardType="number-pad"
@@ -239,15 +254,15 @@ export default function PomodoroScreen() {
                 style={styles.cancelBtn}
                 activeOpacity={0.7}
               >
-                <Text style={styles.cancelBtnText}>Batal</Text>
+                <Text style={styles.cancelBtnText}>Cancel</Text>
               </TouchableOpacity>
-              
+
               <TouchableOpacity
                 onPress={handleSaveSettings}
                 style={[styles.saveBtn, { backgroundColor: activeModeColor }]}
                 activeOpacity={0.7}
               >
-                <Text style={styles.saveBtnText}>Simpan</Text>
+                <Text style={styles.saveBtnText}>Save</Text>
               </TouchableOpacity>
             </View>
           </View>
@@ -271,6 +286,7 @@ const styles = StyleSheet.create({
   header: {
     width: '100%',
     marginBottom: theme.spacing.xl,
+    marginTop: theme.spacing.xxl,
   },
   subTitle: {
     color: theme.colors.primary,
@@ -434,5 +450,28 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     fontFamily: theme.fonts.sans,
     fontSize: 14,
+  },
+  stopAlarmBtn: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: theme.colors.danger,
+    paddingVertical: 14,
+    paddingHorizontal: 24,
+    borderRadius: theme.borderRadius.md,
+    marginBottom: theme.spacing.xl,
+    width: '100%',
+    shadowColor: theme.colors.danger,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.4,
+    shadowRadius: 6,
+    elevation: 6,
+  },
+  stopAlarmBtnText: {
+    color: '#FFFFFF',
+    fontWeight: 'bold',
+    fontSize: 15,
+    fontFamily: theme.fonts.sans,
+    letterSpacing: 1.2,
   },
 });
