@@ -112,9 +112,98 @@ export async function cancelEventNotification(id: string): Promise<void> {
   }
 }
 
+
+/**
+ * Schedules a daily recurring notification at exactly 00:00 AM local time
+ * notifying the user that their daily tasks have been reset for the new day.
+ */
+export async function scheduleDailyResetNotification(): Promise<string | null> {
+  if (Platform.OS === 'web') return null;
+
+  try {
+    const hasPermission = await requestNotificationPermissions();
+    if (!hasPermission) return null;
+
+    // Cancel any existing daily reset notification first
+    await cancelEventNotification('daily-reset-recurring');
+
+    // Configure channel for Android
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('daily-reset-channel', {
+        name: 'Daily Reset Reminders',
+        importance: Notifications.AndroidImportance.DEFAULT,
+        sound: 'notif.mp3',
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#d46617',
+      });
+    }
+
+    const notificationId = await Notifications.scheduleNotificationAsync({
+      identifier: 'daily-reset-recurring',
+      content: {
+        title: 'Daily Tasks Reset',
+        body: 'A new day has started! Your daily tasks have been reset for a fresh start.',
+        sound: 'notif.mp3',
+        priority: Notifications.AndroidNotificationPriority.DEFAULT,
+      },
+      trigger: {
+        type: Notifications.SchedulableTriggerInputTypes.DAILY,
+        hour: 0,
+        minute: 0,
+        repeats: true,
+        channelId: 'daily-reset-channel',
+      } as any,
+    });
+
+    return notificationId;
+  } catch (error) {
+    console.error('Failed to schedule daily reset notification:', error);
+    return null;
+  }
+}
+
+/**
+ * Triggers an immediate local notification telling the user their tasks were reset.
+ */
+export async function triggerImmediateDailyResetNotification(): Promise<void> {
+  if (Platform.OS === 'web') return;
+
+  try {
+    const hasPermission = await requestNotificationPermissions();
+    if (!hasPermission) return;
+
+    // Configure channel for Android
+    if (Platform.OS === 'android') {
+      await Notifications.setNotificationChannelAsync('daily-reset-channel', {
+        name: 'Daily Reset Reminders',
+        importance: Notifications.AndroidImportance.DEFAULT,
+        sound: 'notif.mp3',
+        vibrationPattern: [0, 250, 250, 250],
+        lightColor: '#d46617',
+      });
+    }
+
+    await Notifications.scheduleNotificationAsync({
+      identifier: 'daily-reset-immediate',
+      content: {
+        title: 'Daily Tasks Reset',
+        body: 'Your daily tasks have been reset because it is a new day!',
+        sound: 'notif.mp3',
+        priority: Notifications.AndroidNotificationPriority.DEFAULT,
+      },
+      trigger: null, // Show immediately
+    });
+  } catch (error) {
+    console.error('Failed to trigger immediate daily reset notification:', error);
+  }
+}
+
 export default {
   requestNotificationPermissions,
   scheduleEventNotification,
   cancelEventNotification,
+  scheduleDailyResetNotification,
+  triggerImmediateDailyResetNotification,
 };
+
 

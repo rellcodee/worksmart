@@ -10,6 +10,8 @@ import { useTaskStore } from '../src/store/useTaskStore';
 import { useNoteStore } from '../src/store/useNoteStore';
 import { usePomodoroStore } from '../src/store/usePomodoroStore';
 import { theme } from '../src/constants/theme';
+import { initPomodoroService } from '../src/services/pomodoroService';
+import { scheduleDailyResetNotification } from '../src/services/notificationService';
 
 export const unstable_settings = {
   anchor: '(tabs)',
@@ -30,6 +32,12 @@ export default function RootLayout() {
           useNoteStore.getState().loadNotesData(),
           usePomodoroStore.getState().loadSettings(),
         ]);
+
+        // Initialize Pomodoro Notification Service
+        await initPomodoroService();
+
+        // Initialize Daily Reset Notification Schedule
+        await scheduleDailyResetNotification();
         
         setAppReady(true);
       } catch (error) {
@@ -76,3 +84,6 @@ const styles = StyleSheet.create({
     fontFamily: theme.colors.textMuted, // fallback or safe
   },
 });
+
+// Harmless comment to force IDE TS server to reload file cache
+

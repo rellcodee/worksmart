@@ -4,6 +4,13 @@ import * as Haptics from 'expo-haptics';
 import * as Notifications from 'expo-notifications';
 import { Audio } from 'expo-av';
 import { getDb } from '../db/database';
+import {
+  showOngoingTimerNotification,
+  stopOngoingNotification,
+  triggerAlarmNotification,
+  stopAlarmNotification,
+  registerStoreActions,
+} from '../services/pomodoroService';
 
 export type TimerMode = 'focus' | 'short_break' | 'long_break';
 
@@ -127,6 +134,8 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
         timerInterval = null;
       }
       await Notifications.cancelScheduledNotificationAsync(POMODORO_NOTIF_ID);
+      await stopOngoingNotification();
+      await stopAlarmNotification();
       await stopAlarmSound();
 
       set({
@@ -155,6 +164,8 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       timerInterval = null;
     }
     Notifications.cancelScheduledNotificationAsync(POMODORO_NOTIF_ID);
+    stopOngoingNotification();
+    stopAlarmNotification();
     stopAlarmSound();
 
     set({
@@ -173,6 +184,7 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
     // If alarm is ringing, stop it
     if (isAlarmActive) {
       await stopAlarmSound();
+      await stopAlarmNotification();
     }
 
     // Trigger slight haptic feedback
@@ -181,7 +193,10 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
     const targetEndTime = Date.now() + timeLeft * 1000;
     set({ isRunning: true, endTime: targetEndTime, isAlarmActive: false });
 
-    // Schedule background notification
+    // Show Notifee ongoing notification
+    await showOngoingTimerNotification(timerMode, targetEndTime, true);
+
+    // Schedule background notification for OS level backup
     const notificationTitle =
       timerMode === 'focus'
         ? 'Focus Session Finished!'
@@ -215,11 +230,13 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
   },
 
   pauseTimer: async () => {
+    const { timerMode, timeLeft } = get();
     if (timerInterval) {
       clearInterval(timerInterval);
       timerInterval = null;
     }
     await Notifications.cancelScheduledNotificationAsync(POMODORO_NOTIF_ID);
+    await showOngoingTimerNotification(timerMode, Date.now() + timeLeft * 1000, false);
     await stopAlarmSound();
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Medium);
@@ -233,6 +250,8 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       timerInterval = null;
     }
     await Notifications.cancelScheduledNotificationAsync(POMODORO_NOTIF_ID);
+    await stopOngoingNotification();
+    await stopAlarmNotification();
     await stopAlarmSound();
 
     Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Light);
@@ -245,8 +264,8 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
     set({ timeLeft: seconds, isRunning: false, endTime: null, isAlarmActive: false });
   },
 
-  tick: (onComplete) => {
-    const { timeLeft } = get();
+  tick: async (onComplete) => {
+    const { timeLeft, timerMode } = get();
     if (timeLeft <= 1) {
       // Completed!
       if (timerInterval) {
@@ -259,6 +278,7 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
       playAlarmSound();
+      await triggerAlarmNotification(timerMode);
 
       set({ timeLeft: 0, isRunning: false, endTime: null, isAlarmActive: true });
       if (onComplete) onComplete();
@@ -267,8 +287,8 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
     }
   },
 
-  checkBackgroundTime: (onComplete) => {
-    const { isRunning, endTime } = get();
+  checkBackgroundTime: async (onComplete) => {
+    const { isRunning, endTime, timerMode } = get();
     if (!isRunning || !endTime) return;
 
     const diff = endTime - Date.now();
@@ -285,11 +305,14 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
       Haptics.notificationAsync(Haptics.NotificationFeedbackType.Warning);
 
       playAlarmSound();
+      await triggerAlarmNotification(timerMode);
 
       set({ timeLeft: 0, isRunning: false, endTime: null, isAlarmActive: true });
       if (onComplete) onComplete();
     } else {
       set({ timeLeft: remainingSeconds });
+      // Update ongoing notification
+      await showOngoingTimerNotification(timerMode, endTime, true);
       // Restart ticker
       if (timerInterval) clearInterval(timerInterval);
       timerInterval = setInterval(() => {
@@ -300,7 +323,17 @@ export const usePomodoroStore = create<PomodoroState>((set, get) => ({
 
   stopAlarm: async () => {
     await stopAlarmSound();
+    await stopAlarmNotification();
     set({ isAlarmActive: false });
   },
 }));
+
+// Register actions to let Pomodoro Service control the store
+registerStoreActions({
+  pause: () => usePomodoroStore.getState().pauseTimer(),
+  resume: () => usePomodoroStore.getState().startTimer(),
+  reset: () => usePomodoroStore.getState().resetTimer(),
+  stopAlarm: () => usePomodoroStore.getState().stopAlarm(),
+});
+
 export default usePomodoroStore;

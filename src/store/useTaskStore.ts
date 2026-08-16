@@ -1,6 +1,10 @@
 import { create } from 'zustand';
 import { getDb } from '../db/database';
-import { scheduleEventNotification, cancelEventNotification } from '../services/notificationService';
+import {
+  scheduleEventNotification,
+  cancelEventNotification,
+  triggerImmediateDailyResetNotification,
+} from '../services/notificationService';
 
 export interface DailyTask {
   id: string;
@@ -80,9 +84,11 @@ export const useTaskStore = create<TaskState>((set, get) => ({
       // 1. Fetch raw daily tasks
       const rawDailies = await db.getAllAsync<DailyTask>('SELECT * FROM daily_tasks');
       const updatedDailies: DailyTask[] = [];
+      let didReset = false;
 
       for (const task of rawDailies) {
         if (task.last_updated_date !== todayStr) {
+          didReset = true;
           // Trigger midnight reset check: Completed tasks become incomplete
           const nextCompleted = task.is_completed === 1 ? 0 : task.is_completed;
           await db.runAsync(
@@ -97,6 +103,10 @@ export const useTaskStore = create<TaskState>((set, get) => ({
         } else {
           updatedDailies.push(task);
         }
+      }
+
+      if (didReset) {
+        await triggerImmediateDailyResetNotification();
       }
 
       // 2. Fetch weekly tasks
@@ -296,3 +306,6 @@ export const useTaskStore = create<TaskState>((set, get) => ({
     }
   },
 }));
+
+// Harmless comment to force IDE TS server to reload file cache
+

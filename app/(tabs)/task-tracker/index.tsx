@@ -81,8 +81,8 @@ export function TaskTrackerHub() {
           activeOpacity={0.8}
         >
           <View style={styles.cardHeader}>
-            <View style={[styles.iconBg, { backgroundColor: theme.colors.putihDekil }]}>
-              <IconSymbol size={22} name="calendar" color={theme.colors.accent} />
+            <View style={[styles.iconBg, { backgroundColor: theme.colors.claude }]}>
+              <IconSymbol size={22} name="calendar" color="#FFFFFF" />
             </View>
             <View style={styles.cardHeaderRight}>
               <Text style={styles.cardTitle}>Weekly Tracker</Text>

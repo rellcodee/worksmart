@@ -18,7 +18,12 @@
       },
       "edgeToEdgeEnabled": true,
       "predictiveBackGestureEnabled": false,
-      "package": "com.anonymous.worksmart"
+      "package": "com.anonymous.worksmart",
+      "permissions": [
+        "FOREGROUND_SERVICE",
+        "VIBRATE",
+        "USE_FULL_SCREEN_INTENT"
+      ]
     },
     "web": {
       "output": "static",
@@ -43,7 +48,8 @@
         "expo-notifications",
         {
           "sounds": [
-            "./assets/audio/notif.mp3"
+            "./assets/audio/notif.mp3",
+            "./assets/audio/alarm.mp3"
           ]
         }
       ]
