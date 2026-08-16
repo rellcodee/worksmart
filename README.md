@@ -25,7 +25,7 @@
   <!-- Download APK Button -->
   <h3>📱 Instant Install for Android</h3>
   <a href="https://github.com/rellcodee/worksmart/releases/download/v2.0.0/WorkSmartv2.apk">
-    <img src="https://img.shields.io/badge/DOWNLOAD_APK_V1.0.0-23272E?style=for-the-badge&logo=android&logoColor=d46617" alt="Download APK" />
+    <img src="https://img.shields.io/badge/DOWNLOAD_APK_V2.0.0-23272E?style=for-the-badge&logo=android&logoColor=d46617" alt="Download APK" />
   </a>
   <br />
   <sub><i>Offline App • No Registration Required • Free</i></sub>
